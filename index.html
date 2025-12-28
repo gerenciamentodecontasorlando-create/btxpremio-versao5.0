@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BTX Docs Saúde — Premium</title>
+
+  <link rel="manifest" href="./manifest.webmanifest">
+  <meta name="theme-color" content="#19e28c">
+  <link rel="icon" href="./icons/icon-192.png">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+
+  <link rel="stylesheet" href="./style.css?v=1">
+</head>
+
+<body>
+  <!-- LOGIN -->
+  <div class="loginWrap" id="loginWrap">
+    <div class="loginCard">
+      <div class="loginBrand">
+        <div class="btxLogo">BTX</div>
+        <div>
+          <div class="loginTitle">BTX Docs Saúde <span class="pill">Premium</span></div>
+          <div class="loginSub">Clínica integrada • Agenda inteligente • Documentos • Offline</div>
+        </div>
+      </div>
+
+      <div class="loginHint">
+        Digite sua <b>chave</b>. Ela ativa este dispositivo (offline).<br>
+        <span class="muted">Dica: use minúsculas (ex.: <code>btx007</code>).</span>
+      </div>
+
+      <label class="lbl" for="loginKey">Chave</label>
+      <input id="loginKey" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="btx007">
+
+      <button class="btn btnPrimary" id="btnLogin" type="button">Entrar</button>
+
+      <div class="loginFoot">
+        Se aparecer versão velha, limpe dados do site / reinstale o PWA.
+      </div>
+    </div>
+  </div>
+
+  <!-- APP -->
+  <header class="topbar no-print" id="appTopbar" style="display:none;">
+    <div class="brand">
+      <div class="logoCircle">BTX</div>
+      <div>
+        <h1>BTX Docs Saúde — Premium</h1>
+        <p>Agenda clínica integrada • Multi-profissional • PDFs de alta qualidade</p>
+      </div>
+    </div>
+
+    <div class="rightinfo">
+      <div id="pwaStatus">PWA: verificando…</div>
+      <div class="miniRow">
+        <button class="btn btnGhost" id="btnInstall" type="button" style="display:none;">Instalar</button>
+        <button class="btn btnGhost" id="btnBackup" type="button">Backup</button>
+        <button class="btn btnGhost" id="btnRestore" type="button">Restaurar</button>
+        <input id="restoreFile" type="file" accept="application/json" style="display:none;">
+        <button class="btn btnDanger" id="btnLogout" type="button">Sair</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="appMain" style="display:none;">
+    <div class="shell">
+      <section class="screen">
+        <div class="layout">
+
+          <!-- LATERAL -->
+          <aside class="card no-print">
+            <h2>Clínica</h2>
+            <p class="small">Esses dados aparecem no cabeçalho/rodapé dos PDFs.</p>
+
+            <label for="clinicName">Nome da clínica</label>
+            <input id="clinicName" placeholder="Ex.: Clínica BTX Saúde" />
+
+            <label for="clinicAddr">Endereço completo</label>
+            <input id="clinicAddr" placeholder="Rua, nº, bairro, cidade - UF, CEP" />
+
+            <div class="row">
+              <div>
+                <label for="clinicTel">Telefone</label>
+                <input id="clinicTel" placeholder="(00) 0000-0000" />
+              </div>
+              <div>
+                <label for="clinicWhats">WhatsApp</label>
+                <input id="clinicWhats" placeholder="(00) 00000-0000" />
+              </div>
+            </div>
+
+            <div class="actionsLeft">
+              <button class="btn btnGhost" type="button" id="btnClinicClear">Limpar</button>
+              <button class="btn btnPrimary" type="button" id="btnClinicSave">Salvar</button>
+            </div>
+
+            <hr class="sep" />
+
+            <h2>Profissionais</h2>
+            <p class="small">Crie perfis e selecione o profissional ativo (agenda e PDFs puxam tudo automaticamente).</p>
+
+            <div class="row">
+              <button class="btn btnGhost" type="button" id="btnProNew">+ Novo</button>
+              <button class="btn btnGhost" type="button" id="btnProManage">Gerenciar</button>
+            </div>
+
+            <label for="activePro">Profissional ativo</label>
+            <select id="activePro"></select>
+            <div class="small" style="margin-top:8px;">
+              Ativo: <b id="activeProLabel">—</b>
+            </div>
+
+            <hr class="sep" />
+
+            <h2>Central</h2>
+            <div class="tabs" id="tabs">
+              <button class="tabbtn active" data-tab="agenda">Agenda Inteligente <span class="badge">clínica</span></button>
+              <button class="tabbtn" data-tab="pacientes">Pacientes/Prontuário <span class="badge">memória</span></button>
+              <button class="tabbtn" data-tab="ficha">Ficha clínica</button>
+              <button class="tabbtn" data-tab="receita">Receituário (inteligente)</button>
+              <button class="tabbtn" data-tab="recibo">Recibo</button>
+              <button class="tabbtn" data-tab="orcamento">Orçamento</button>
+              <button class="tabbtn" data-tab="laudo">Laudo</button>
+              <button class="tabbtn" data-tab="atestado">Atestado</button>
+              <button class="tabbtn" data-tab="config">Config Premium</button>
+            </div>
+
+            <hr class="sep" />
+
+            <div class="small"><b>Imprimir/PDF</b>: imprime só o documento/aba atual (PDF individual).</div>
+
+            <div class="row" style="margin-top:10px;">
+              <button class="btn btnGhost" id="btnDownloadApp" type="button">Baixar (atalho)</button>
+              <button class="btn btnDanger" id="btnResetAll" type="button">Zerar tudo</button>
+            </div>
+          </aside>
+
+          <!-- CONTEÚDO -->
+          <section class="content">
+            <div class="content-header">
+              <div>
+                <h3 id="docTitle">Agenda Inteligente</h3>
+                <div class="sub" id="docSub">Semana, status, busca, multi-profissional e integração com pacientes.</div>
+              </div>
+              <div class="small">
+                Clínica: <span id="clinicResumo">—</span><br>
+                Profissional ativo: <span id="profResumo">—</span>
+              </div>
+            </div>
+
+            <div class="split">
+              <!-- FORM -->
+              <div class="panel no-print" id="formPanel"></div>
+
+              <!-- PREVIEW -->
+              <div class="panel">
+                <div class="actions no-print">
+                  <button class="btn btnGhost" type="button" id="btnLimparForm">Limpar</button>
+                  <button class="btn btnPrimary" type="button" id="btnPrint">Imprimir / PDF</button>
+                </div>
+
+                <div class="paper" id="paper">
+                  <div class="docHeader">
+                    <div class="docBrand">
+                      <div class="docBTX">BTX</div>
+                      <div>
+                        <div class="docHTitle" id="pvClinicName">BTX Docs Saúde — Premium</div>
+                        <div class="docHAddr" id="pvClinicAddr">Endereço da clínica/profissional</div>
+                      </div>
+                    </div>
+                    <div class="docMeta" id="pvMeta"></div>
+                  </div>
+
+                  <div class="docProfBox" id="pvProfBox"></div>
+
+                  <div class="docMainTitle" id="pvTitle">Pré-visualização</div>
+                  <div class="docSubTitle" id="pvSub">Preencha o formulário para gerar o documento.</div>
+
+                  <div id="pvBody"></div>
+
+                  <div class="sign" id="pvSign"></div>
+
+                  <div class="docFooter" id="pvFooter"></div>
+                </div>
+              </div>
+            </div>
+
+          </section>
+
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="./db.js?v=1"></script>
+  <script src="./app.js?v=1"></script>
+  <script src="./pwa.js?v=1"></script>
+</body>
+</html>
